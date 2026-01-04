@@ -1,3 +1,5 @@
+// Package models defines the data structures and database operations for events.
+// It provides the Event model and functions for CRUD operations on events.
 package models
 
 import (
@@ -9,17 +11,24 @@ import (
 	"github.com/google/uuid"
 )
 
+// Event represents an event in the system with all its properties.
+// It includes basic event information like title, description, location,
+// as well as metadata like ID, date/time, and user ID.
 type Event struct {
-	ID          string
-	Title       string    `binding:"required"`
-	Description string    `binding:"required"`
-	Location    string    `binding:"required"`
-	DateTime    time.Time `binding:"required"`
-	UserID      string
+	ID          string    // Unique identifier for the event
+	Title       string    `binding:"required"` // Event title (required)
+	Description string    `binding:"required"` // Event description (required)
+	Location    string    `binding:"required"` // Event location (required)
+	DateTime    time.Time `binding:"required"` // Event date and time (required)
+	UserID      string    // ID of the user who created the event
 }
 
+// events is a slice used to store events in memory (currently unused in database operations)
 var events = []Event{}
 
+// Save persists the Event to the database.
+// It generates a new UUID for the event and inserts it into the events table.
+// Returns an error if the database operation fails.
 func (e Event) Save() error {
 	q := `
 	INSERT INTO events (id, name,description,datetime,user_id,location)
@@ -39,6 +48,8 @@ func (e Event) Save() error {
 	return nil
 }
 
+// GetAllEvents retrieves all events from the database.
+// Returns a slice of Event objects and any error encountered during the query.
 func GetAllEvents() ([]Event, error) {
 	q := `SELECT * FROM events`
 	rows, err := db.DB.Query(q)
@@ -57,6 +68,8 @@ func GetAllEvents() ([]Event, error) {
 	return events, nil
 }
 
+// GetEventById retrieves a single event from the database by its ID.
+// Returns the Event object if found, otherwise returns an empty Event and an error.
 func GetEventById(id string) (Event, error) {
 	q := "SELECT * FROM events where id=?"
 	row := db.DB.QueryRow(q, id)

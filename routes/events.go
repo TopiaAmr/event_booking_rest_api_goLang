@@ -1,3 +1,5 @@
+// Package routes contains the HTTP handler functions for the event booking API endpoints.
+// It implements the business logic for handling HTTP requests and responses.
 package routes
 
 import (
@@ -8,6 +10,9 @@ import (
 	"github.com/google/uuid"
 )
 
+// getEvents handles GET requests to /events endpoint.
+// It retrieves all events from the database and returns them as JSON.
+// Returns HTTP 500 if there's an error fetching events, otherwise HTTP 200 with events data.
 func getEvents(context *gin.Context) {
 	events, err := models.GetAllEvents()
 	if err != nil {
@@ -19,6 +24,9 @@ func getEvents(context *gin.Context) {
 	})
 }
 
+// getEvent handles GET requests to /events/:id endpoint.
+// It retrieves a specific event by its ID from the database.
+// Returns HTTP 404 if the event is not found, otherwise HTTP 302 with the event data.
 func getEvent(c *gin.Context) {
 	id, _ := c.Params.Get("id")
 	event, err := models.GetEventById(id)
@@ -34,6 +42,9 @@ func getEvent(c *gin.Context) {
 
 }
 
+// createEvent handles POST requests to /event endpoint.
+// It creates a new event from the JSON request body and saves it to the database.
+// Returns HTTP 400 if the request is invalid or save fails, otherwise HTTP 201 with the created event.
 func createEvent(context *gin.Context) {
 	var newEvent models.Event
 	err := context.ShouldBindJSON(&newEvent)
