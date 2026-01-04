@@ -87,3 +87,66 @@ func GetEventById(id string) (Event, error) {
 
 	return event, nil
 }
+
+// Update updates an existing event in the database.
+// Returns an error if the database operation fails.
+func (e Event) Update() error {
+	q := `
+	UPDATE events
+	SET name=?,description=?,datetime=?,location=?
+	WHERE id=?
+	`
+	stmt, err := db.DB.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(e.Title, e.Description, e.DateTime, e.Location, e.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Delete removes an event from the database by its ID.
+// Returns an error if the database operation fails.
+func (e Event) Delete() error {
+	q := "DELETE FROM events WHERE id=?"
+	stmt, err := db.DB.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(e.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetEventsByUserId retrieves all events associated with a specific user ID.
+// Returns a slice of Event objects and any error encountered during the query.
+func GetEventsByUserId(userId string) ([]Event, error) {
+	q := "SELECT * FROM events WHERE user_id=?"
+	rows, err := db.DB.Query(q, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var events []Event
+	for rows.Next() {
+		var event Event
+		err = rows.Scan(&event.ID, &event.Title, &event.Description, &event.Location, &event.DateTime, &event.UserID)
+		if err != nil {
+			return nil, err
+		}
+		events = append(events, event)
+	}
+
+	return events, nil
+}

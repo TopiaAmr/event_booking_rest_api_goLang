@@ -70,3 +70,66 @@ func createEvent(context *gin.Context) {
 		gin.H{"message": "A new event has been created successfully", "event": newEvent},
 	)
 }
+
+// updateEvent handles PUT requests to /events/:id endpoint.
+// It updates an existing event with the provided ID using the JSON request body.
+// Returns HTTP 404 if the event is not found, HTTP 400 if the request is invalid,
+// or HTTP 200 with the updated event on success.
+func updateEvent(c *gin.Context) {
+	id, _ := c.Params.Get("id")
+	event, err := models.GetEventById(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	var updatedEvent models.Event
+	err = c.ShouldBindJSON(&updatedEvent)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	updatedEvent.ID = event.ID
+	err = updatedEvent.Update()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Event updated successfully",
+		"event":   updatedEvent,
+	})
+
+}
+
+// deleteEvent handles DELETE requests to /events/:id endpoint.
+// It deletes the event with the provided ID from the database.
+// Returns HTTP 404 if the event is not found, HTTP 500 if deletion fails,
+// or HTTP 200 with a success message on success.
+func deleteEvent(c *gin.Context) {
+	id, _ := c.Params.Get("id")
+	event, err := models.GetEventById(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	err = event.Delete()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Event deleted successfully",
+	})
+}
