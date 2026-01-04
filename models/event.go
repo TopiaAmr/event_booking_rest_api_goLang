@@ -57,15 +57,17 @@ func GetAllEvents() ([]Event, error) {
 		return nil, err
 	}
 	defer rows.Close()
+
+	var retrievedEvents []Event
 	for rows.Next() {
 		var event Event
 		err = rows.Scan(&event.ID, &event.Title, &event.Description, &event.Location, &event.DateTime, &event.UserID)
 		if err != nil {
 			return nil, err
 		}
-		events = append(events, event)
+		retrievedEvents = append(retrievedEvents, event)
 	}
-	return events, nil
+	return retrievedEvents, nil
 }
 
 // GetEventById retrieves a single event from the database by its ID.
