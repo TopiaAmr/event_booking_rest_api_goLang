@@ -12,9 +12,9 @@ import "github.com/gin-gonic/gin"
 //   - PUT /events/:id - Update an existing event
 //   - DELETE /events/:id - Delete an event
 func RegisterRoutes(server *gin.Engine) {
-	server.GET("/events/:id", getEvent)
-	server.PUT("/events/:id", updateEvent)
 	server.GET("/events", getEvents)
 	server.POST("/event", createEvent)
+	server.PUT("/events/:id", updateEvent)
+	server.GET("/events/:id", getEvent)
 	server.DELETE("/events/:id", deleteEvent)
 }
